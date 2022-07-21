@@ -148,7 +148,7 @@ BLOSUM50 matrix ：
 去掉matrix中*所在的行、列，将每个氨基酸编码为其对应的一行（或一列）。
 
 ### pytorch.nn.lstm in and out
-- in: input,(h0.c0)
+- in: input,(h0,c0)
   - input [seq_length, batch_size, input_size(embedding_dim)]
 - out: output,(ht,ct)
   - output [seq_len, batch_size, hidden_size * num_directions]
