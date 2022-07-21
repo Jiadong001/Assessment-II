@@ -97,7 +97,7 @@ i-->j-.->k
 
 BiLSTM的output经处理后作为attention的输入，输出一串features：（一串因为batch_size=1）
 
-$H_{s\times b\times h} = output[: ,: ,前一半]\oplus output[: ,: ,后一半]<-->“两状态相加”$
+$H_{s\times b\times h} = output[: ,: ,前一半]\oplus output[: ,: ,后一半]<-->双向状态相加$
 
 $设训练参数w_{b\times 1 \times h}$
 
