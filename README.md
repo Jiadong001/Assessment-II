@@ -123,7 +123,7 @@ $r_{b\times h \times 1} = H_{b\times h\times s}\alpha_{b\times s \times 1}$
 |<img src="picture/compete_inde.png">|<img src="picture/compete_exter.png">|
 
 由于这四种模型是经independent_set2和external_set2测试挑选出来的，有一定的偏向性。再从external_set中挑出一组数据external_set3，比较：
-<center><img src="picture/compete_exter.png" width=50%></center>
+<center><img src="picture/compete_exter3.png" width=50%></center>
 
 使用全部数据集中的数据训练模型，再来比较会更有说服力
 
