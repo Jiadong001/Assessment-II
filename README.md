@@ -60,8 +60,6 @@ a conventional feed-forward network
 - one hidden layer 
 - a single neuron output layer
 
-训练结果：
-
 ### model 2 --- NetMHCpan1.0_LSTM
 先将peptide、HLA编码序列分别输入2个LSTM layer中，然后将两输出结果中的“ht”结合（cat）起来，输入model 1的network中
 
