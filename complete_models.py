@@ -18,7 +18,7 @@ import pandas as pd
 import numpy as np
 import torch
 import task_models
-import model as tmodel          #TransPHLA model
+import model as Tmodel          #TransPHLA model
 import torch.utils.data as Data
 
 '''BLOSUM50'''
@@ -305,19 +305,19 @@ def use_TransPHLA(file_name):
     data_num = len(bind_labels)
 
     #变成可以用TransPHLA处理的数据
-    pep_inputs, HLA_inputs = tmodel.make_data(data)
+    pep_inputs, HLA_inputs = Tmodel.make_data(data)
     val_loader = Data.DataLoader(Tmodel.MyDataSet(pep_inputs, HLA_inputs), batch_size = 1, shuffle = False, num_workers = 0)    
     #受C/GPU容量限制，设batch_size = 1，方便处理大量数据
 
     '''加载模型'''
     model_file = 'model/model_layer1_multihead9_fold4.pkl'
 
-    model_eval = tmodel.Transformer().to(device)
+    model_eval = Tmodel.Transformer().to(device)
     model_eval.load_state_dict(torch.load(model_file), strict = True)
 
     '''预测'''
     model_eval.eval()
-    y_pred, y_prob, attns = tmodel.eval_step(model_eval, val_loader, 0.5, use_cuda)     #output: 预测值(0/1)，概率，注意力
+    y_pred, y_prob, attns = Tmodel.eval_step(model_eval, val_loader, 0.5, use_cuda)     #output: 预测值(0/1)，概率，注意力
 
     y_pred[y_pred != bind_labels] = 0
     y_pred[y_pred == bind_labels] = 1
