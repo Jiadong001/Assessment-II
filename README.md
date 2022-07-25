@@ -1,6 +1,5 @@
 # Predicting the binding of peptide and HLA Class I
 
-# 介绍
 ### 文件简介
 - 文件夹
   - ``data_csv`` : 存放train_set, test_set的csv文件
@@ -12,7 +11,7 @@
   - ``model.py``、``vocab_dict.npy``是TransPHLA模型的文件，来自于 https://github.com/a96123155/TransPHLA-AOMP
   - ``test_TransPHLA.ipynb`` 测试使用TransPHLA模型的步骤
   - ``complete_models.py`` 存放完整的预测模型，输入数据集文件名，输出accuracy
-  - ``compete.ipynb`` 比较不同模型的预测准确度
+  - ``compare.ipynb`` 比较不同模型的预测准确度
 
 ### 版本
 * python 3.8
@@ -31,7 +30,7 @@ Input:
 Output: 
 - whether the peptides bind to the MHC molecule or not (0 or 1)
   - output of the model is a scalar, which is like "probability"
-  - assuming that 'probability > 0.5' means binding(1), while 'probability < 0.5' means non-binding(0)
+  - assuming that 'output > 0.5' means binding(1), while 'output < 0.5' means non-binding(0)
 
 ### model's training
 数据集来源：TranPHLA模型的数据https://github.com/a96123155/TransPHLA-AOMP/tree/master/Dataset
@@ -115,13 +114,10 @@ $r_{b\times h \times 1} = H_{b\times h\times s}\alpha_{b\times s \times 1}$
 - csv文件中的independent_set中peptide长度单一
 
 # 模型比较
-比较四种模型与TransPHLA的accuracy：
-|independent_set2|external_set2|
+比较四种模型与TransPHLA在整个independent_set和external_set上的accuracy：
+|independent_set|external_set|
 |:-:|:-:|
-|<img src="picture/compete_inde.png">|<img src="picture/compete_exter.png">|
-
-由于这四种模型是经independent_set2和external_set2测试挑选出来的，有一定的偏向性。再从external_set中挑出一组数据external_set3，比较：
-<center><img src="picture/compete_exter3.png" width=50%></center>
+|<img src="picture/compare_inde.png">|<img src="picture/compare_exter.png">|
 
 使用全部数据集中的数据训练模型，再来比较会更有说服力
 
