@@ -295,7 +295,7 @@ def use_AttBiLSTM(file_name):
 
 def use_TransPHLA(file_name):
     #设备
-    use_cuda = False
+    use_cuda = False        #cpu
     device = torch.device("cuda" if use_cuda else "cpu")
     
     '''提取数据并处理'''
@@ -306,7 +306,8 @@ def use_TransPHLA(file_name):
 
     #变成可以用TransPHLA处理的数据
     pep_inputs, HLA_inputs = tmodel.make_data(data)
-    val_loader = Data.DataLoader(tmodel.MyDataSet(pep_inputs, HLA_inputs), batch_size = len(data), shuffle = False, num_workers = 0)
+    val_loader = Data.DataLoader(Tmodel.MyDataSet(pep_inputs, HLA_inputs), batch_size = 1, shuffle = False, num_workers = 0)    
+    #受C/GPU容量限制，设batch_size = 1，方便处理大量数据
 
     '''加载模型'''
     model_file = 'model/model_layer1_multihead9_fold4.pkl'
