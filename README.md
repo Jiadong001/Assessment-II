@@ -32,34 +32,68 @@ Output:
   - output of the model is a scalar, which is like "probability"
   - assuming that 'output > 0.5' means binding(1), while 'output < 0.5' means non-binding(0)
 
-### model's training
+### dataset
 数据集来源：TranPHLA模型的数据https://github.com/a96123155/TransPHLA-AOMP/tree/master/Dataset
 - train_data_fold0-4  -->train
 - independent_set     -->test
 - external_set        -->test
-- 训练数据集中的所有数据用时较长，因此仅使用数据集中的一小部分
-  - train_data: 500 per fold
-  - independent_set: ~900 
-  - external_set: ~1000 
-
-训练方式：
-- five-fold CV
-  - train_data --> _fold0/1/2/3/4
-  - 四组训练，一组评估，取平均的评估结果
-- 训练时先不分batch，单个数据输入，求loss
-- epoch限制在30，这里选取epoch=30时的模型作为最终模型
-- loss: MSE
-- 参数优化：Adam
 
 ### model 1 --- NetMHCpan1.0
-用BLOSUM50 Matrix编码氨基酸，peptide 与 HLA 编码序列结合起来一起输入模型
-- 输入model的peptide固定长度14，长度不足的肽用‘X’填充
-
 a conventional feed-forward network
 - one hidden layer 
 - a single neuron output layer
 
+```mermaid
+graph LR
+a((peptide))
+b((HLA))
+c[BLOSUM50]
+d[BLOSUM50]
+e(cat)
+f[hidden layer]
+g[output layer]
+h((prediction))
+a-.->c-->e-.输入.->f-->g-.输出.->h
+b-.->d-->e
+```
+
+用BLOSUM50 Matrix编码氨基酸，peptide 与 HLA 编码序列结合起来一起输入模型
+- 输入model的peptide固定长度14，长度不足在后面用‘X’填充
+
+训练：
+- five-fold CV
+  - train_data_fold0/1/2/3/4
+  - 四组训练，一组评估，取平均的评估结果
+- 训练数据集中的所有数据用时较长，因此仅使用数据集中的一小部分
+  - train_data: 500 per fold
+- loss: MSE
+- 参数优化：Adam
+- epoch限制在30，这里选取epoch=30时的模型作为最终模型
+
+测试：
+- 使用independent_set、external_set测试
+  - independent_set2: ~900 
+  - external_set2: ~1000 
+- 得到accurary，选择表现较好的模型用于最后的比较
+
 ### model 2 --- NetMHCpan1.0_LSTM
+```mermaid
+graph LR
+
+a((peptide))
+b((HLA))
+c[BLOSUM50_pep]
+d[BLOSUM50_HLA]
+e[LSTM]
+f[LSTM]
+i(cat)
+j[feed forward]
+k((prediction))
+
+a-.->c-.输入.->e-->i
+b-.->d-.输入.->f-->i
+i-->j-.输出.->k
+```
 先将peptide、HLA编码序列分别输入2个LSTM layer中，然后将两输出结果中的“ht”结合（cat）起来，输入model 1的network中
 
 - LSTM layer: output_size is 16
@@ -69,6 +103,8 @@ LSTM输入的序列长度可以不受限制，考虑peptide填充和不填充两
 
 ### model 3 --- NetMHCpan1.0_BiLSTM
 LSTM-->BiLSTM，对于BiLSTM产生的双向状态h，这里没有处理（没有两状态相加或其他），只是将他们一块作为下一层的输入。
+
+peptide填充编码
 
 ### model 4 --- NetMHCpan1.0_AttBiLSTM
 BiLSTM输出后加入attention：
@@ -87,12 +123,12 @@ i(cat)
 j[feed forward]
 k((prediction))
 
-a-.->c-->e-->g-->i
-b-.->d-->f-->h-->i
-i-->j-.->k
+a-.->c-.输入.->e-->g-->i
+b-.->d-.输入.->f-->h-->i
+i-->j-.输出.->k
 ```
 
-BiLSTM的output经处理后作为attention的输入，输出一串features：（一串因为batch_size=1）
+BiLSTM的output经处理后作为attention的输入:
 
 $H_{s\times b\times h} = output[: ,: ,前一半]\oplus output[: ,: ,后一半]<-->双向状态相加$
 
@@ -108,10 +144,16 @@ $\alpha_{b\times s \times 1} = \alpha_{b\times 1 \times s}.transpose(1,2)$
 
 $r_{b\times h \times 1} = H_{b\times h\times s}\alpha_{b\times s \times 1}$
 
-### model's testing
-将5-cv训练获得的五个模型放在independent_set2和external_set2上测试，看预测准确度，选择其中结果较好的用于最后的模型比较。
-- 这里independent_set2中有不同长度的peptide，但分布不一定与train_data_fold的分布相同（因为都是直接从原数据集随机截取的）
-- csv文件中的independent_set中peptide长度单一
+### 训练中的一些loss-epoch曲线
+|model1|model2|
+|:-:|:-:|
+|<img src="picture/model1_train1.png">|<img src="picture/model2_train2.png">|
+|<img src="picture/model1_val.png">||
+
+|model3|model4|
+|:-:|:-:|
+|<img src="picture/model3_train2.png">|<img src="picture/model4_train2.png">|
+|<img src="picture/model3_val.png">|<img src="picture/model4_val.png">|
 
 # 模型比较
 比较四种模型与TransPHLA在整个independent_set和external_set上的accuracy：
